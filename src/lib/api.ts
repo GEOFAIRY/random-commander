@@ -8,8 +8,8 @@ export async function fetchRandomCommanderCard(): Promise<Card> {
   const card: Card = {
     name: data.name,
     imageUrl:
-      (!data.card_faces && data.image_uris?.large) ||
-      (data.layout === "transform" && data.card_faces[0].image_uris?.large) ||
+      (!data.card_faces && data.image_uris?.normal) ||
+      (data.layout === "transform" && data.card_faces[0].image_uris?.normal) ||
       "",
     type: data.type_line,
     text: data.oracle_text || "",

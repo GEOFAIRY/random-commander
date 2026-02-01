@@ -25,6 +25,7 @@ export default function CommanderCard({ card }: Props) {
                         width={200}
                         height={300}
                         loading="eager"
+                        fetchPriority="high"
                     />
                 </a>
             ) : null}
