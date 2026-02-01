@@ -3,6 +3,7 @@ export interface Card {
     imageUrl: string;
     type: string;
     text: string;
+    faceCount?: number;
 }
 
 export type Edhrec = {

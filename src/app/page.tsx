@@ -27,7 +27,7 @@ const LandingPage = () => {
             setEdhrecError(null);
             setEdhrecLoading(true);
             try {
-                const edh = await fetchEdhrecByName(cardData.name);
+                const edh = await fetchEdhrecByName(cardData.name, cardData.faceCount ?? 1);
                 setEdhrec(edh);
             } catch (err: unknown) {
                 console.error("EDHREC fetch error:", err);

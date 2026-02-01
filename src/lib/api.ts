@@ -13,15 +13,17 @@ export async function fetchRandomCommanderCard(): Promise<Card> {
       "",
     type: data.type_line,
     text: data.oracle_text || "",
-  };
+    faceCount: data.card_faces ? data.card_faces.length : 1,
+  }; 
 
   return card;
 }
 
-export async function fetchEdhrecByName(name: string): Promise<Edhrec> {
+export async function fetchEdhrecByName(name: string, faceCount = 1): Promise<Edhrec> {
   // Normalize and strip diacritics so names like "Érika" become "erika" and
   // ligatures or compatibility characters are decomposed (NFKD).
-  const slug = name
+  const cleanedName = faceCount > 1 ? name.replace(/\s*\/\/.*$/g, "") : name;
+  const slug = cleanedName
     .normalize("NFKD")
     // remove combining diacritical marks
     .replace(/[\u0300-\u036f]/g, "")
