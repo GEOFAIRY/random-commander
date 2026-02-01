@@ -1,7 +1,13 @@
 import { Card, Edhrec } from "../types";
 
-export async function fetchRandomCommanderCard(): Promise<Card> {
-  const res = await fetch("https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander");
+export async function fetchRandomCommanderCard(
+  colors: string[] = [],
+): Promise<Card> {
+  const res = await fetch(
+    colors.length === 0
+      ? "https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander"
+      : `https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander+id%3A${colors.toString().replace(",", "")}`,
+  );
   if (!res.ok) throw new Error(`Scryfall response ${res.status}`);
   const data = await res.json();
 
@@ -14,12 +20,15 @@ export async function fetchRandomCommanderCard(): Promise<Card> {
     type: data.type_line,
     text: data.oracle_text || "",
     faceCount: data.card_faces ? data.card_faces.length : 1,
-  }; 
+  };
 
   return card;
 }
 
-export async function fetchEdhrecByName(name: string, faceCount = 1): Promise<Edhrec> {
+export async function fetchEdhrecByName(
+  name: string,
+  faceCount = 1,
+): Promise<Edhrec> {
   // Normalize and strip diacritics so names like "Érika" become "erika" and
   // ligatures or compatibility characters are decomposed (NFKD).
   const cleanedName = faceCount > 1 ? name.replace(/\s*\/\/.*$/g, "") : name;
