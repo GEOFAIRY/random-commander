@@ -28,9 +28,14 @@ export default function Controls({
     ];
 
     const toggleColor = (id: string) => {
-        const newFilters = colorFilters.includes(id)
-            ? colorFilters.filter((c) => c !== id)
-            : [...colorFilters, id];
+        let newFilters;
+        if (id === "C" && !colorFilters.includes(id)) newFilters = ["C"];
+        else {
+            newFilters = colorFilters.includes(id)
+                ? colorFilters.filter((c) => c !== id)
+                : [...colorFilters, id];
+            newFilters = newFilters.filter((c) => c !== "C");
+        }
         handleColorFilterChange(newFilters);
     };
 

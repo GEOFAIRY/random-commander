@@ -94,7 +94,7 @@ export default function EdhrecSummary({ card }: Props) {
           <h4>Top tags</h4>
           <ul className={styles.edhrecTags}>
             {panelTaglinks.slice(0, 5).map((t: Tag, i: number) => {
-              const tagName = t.name || t.slug || `tag-${i}`;
+              const tagName = (t.name || t.slug || `tag-${i}`).replace(/plus-/g, '+').replace(/minus-/g, '-');
               const tagCount = typeof t.count === "number" ? t.count : "-";
               const tagSlug =
                 t.slug || tagName.toLowerCase().replace(/[^a-z0-9]+/g, "-");

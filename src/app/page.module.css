@@ -596,5 +596,6 @@ a.secondary {
 
   .contentHeader {
     justify-content: center;
+    flex-wrap: wrap;
   }
 }
