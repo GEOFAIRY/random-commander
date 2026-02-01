@@ -483,6 +483,10 @@ a.secondary {
   height: auto;
 }
 
+.cardImageLink img {
+  border-radius: 15px;
+}
+
 .contentHeader {
   display: flex;
   justify-content: center;
