@@ -13,7 +13,19 @@ type Props = {
 };
 
 export default function EdhrecSummary({ edhrec, loading, error, panelTaglinks, card }: Props) {
-  if (loading) return <p>Loading deck usage...</p>;
+  if (loading)
+    return (
+      <div className={styles.edhrec} aria-live="polite">
+        <div className={styles.edhrecSkeleton}>
+          <div className={styles.skelLine} />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div className={styles.skelSmall} />
+            <div className={styles.skelSmall} />
+          </div>
+        </div>
+      </div>
+    );
+
   if (error) return <p style={{ color: "red" }}>Error loading deck data: {error}</p>;
   if (!edhrec) return null;
 

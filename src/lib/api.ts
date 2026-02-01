@@ -19,13 +19,19 @@ export async function fetchRandomCommanderCard(): Promise<Card> {
 }
 
 export async function fetchEdhrecByName(name: string): Promise<Edhrec> {
+  // Normalize and strip diacritics so names like "Érika" become "erika" and
+  // ligatures or compatibility characters are decomposed (NFKD).
   const slug = name
-    .toLowerCase()
+    .normalize("NFKD")
+    // remove combining diacritical marks
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/[\u2019\u2018']/g, "'")
-    .replace(/'s\b/g, "s")
+    .replace(/'s\b/gi, "s")
     .replace(/'/g, "")
+    .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
+
   const url = `https://json.edhrec.com/pages/commanders/${slug}.json`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`EDHREC response ${res.status}`);

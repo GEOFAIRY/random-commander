@@ -29,8 +29,6 @@ export default function CommanderCard({ card }: Props) {
                     />
                 </a>
             ) : null}
-            <p>{card.type}</p>
-            <p>{card.text}</p>
         </div>
     );
 }
