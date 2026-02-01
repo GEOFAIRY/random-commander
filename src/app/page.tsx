@@ -39,16 +39,15 @@ const LandingPage = () => {
 
           {card ? (
             <div className={styles.content}>
+                <div className={styles.headerRow}>
+                  <h2 className={styles.cardTitle}>{card.name}</h2>
+                  <div />
+                </div>
               <div className={styles.leftColumn}>
                 <CommanderCard card={card} />
               </div>
 
               <div className={styles.rightColumn}>
-                <div className={styles.headerRow}>
-                  <h2 className={styles.cardTitle}>{card.name}</h2>
-                  <div />
-                </div>
-
                 <EdhrecSummary card={card} />
               </div>
             </div>

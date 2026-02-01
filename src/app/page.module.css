@@ -329,7 +329,7 @@ a.secondary {
   border-radius: 12px;
   border: 1px solid #ececec;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  min-height: 120px; /* Reserve space so EDHREC doesn't shift in */
+  height: 100%;
 }
 
 /* Footer at bottom and small text */
@@ -388,7 +388,6 @@ a.secondary {
 
 /* Randomize button + animation */
 .randomizeButton {
-  margin-top: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -438,6 +437,7 @@ a.secondary {
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
 .leftColumn {
@@ -452,13 +452,15 @@ a.secondary {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: 340px;
 }
 
 .headerRow {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 12px;
+  flex: 0 0 100%;
 }
 
 .cardTitle {
@@ -487,6 +489,8 @@ a.secondary {
   align-items: center;
   width: 100%;
   margin-bottom: 12px;
+  gap: 30px;
+  margin: 20px 0;
 }
 
 /* Color filter toggle buttons */
@@ -504,7 +508,7 @@ a.secondary {
   justify-content: center;
   border-radius: 8px;
   border: 1px solid var(--button-secondary-border);
-  background: transparent;
+  background: grey;
   color: var(--text-primary);
   font-weight: 700;
   cursor: pointer;

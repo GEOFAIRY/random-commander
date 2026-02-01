@@ -6,7 +6,7 @@ export async function fetchRandomCommanderCard(
   const res = await fetch(
     colors.length === 0
       ? "https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander"
-      : `https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander+id%3A${colors.toString().replace(",", "")}`,
+      : `https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander+id=${colors.toString().replace(",", "")}`,
   );
   if (!res.ok) throw new Error(`Scryfall response ${res.status}`);
   const data = await res.json();
