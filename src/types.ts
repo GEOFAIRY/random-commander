@@ -7,14 +7,14 @@ export interface Card {
   keywords: string[];
 }
 
-export type PartnerConstraint = 
-  | { type: "none" }
-  | { type: "partner" }
-  | { type: "partner_with"; partnerName: string }
-  | { type: "partner_designator"; designator: string }
-  | { type: "background" }
-  | { type: "doctors_companion" }
-  | { type: "restricted_other" };
+export type PartnerConstraint =
+  | { type: 'none' }
+  | { type: 'partner' }
+  | { type: 'partner_with'; partnerName: string }
+  | { type: 'partner_designator'; designator: string }
+  | { type: 'background' }
+  | { type: 'doctors_companion' }
+  | { type: 'restricted_other' };
 
 export function detectPartnerConstraint(card: Card): PartnerConstraint {
   const text = card.text;
@@ -22,33 +22,34 @@ export function detectPartnerConstraint(card: Card): PartnerConstraint {
 
   // Check for "Partner with [specific card name]"
   const partnerWithMatch = text.match(/Partner with (.+?)(?:\.|,|$)/i);
-  if (partnerWithMatch) {
-    return { type: "partner_with", partnerName: partnerWithMatch[1].trim() };
+  const partnerWithName = partnerWithMatch?.[1]?.trim();
+  if (partnerWithName) {
+    return { type: 'partner_with', partnerName: partnerWithName };
   }
 
   // Check for "Partner—[Designator]" (various partner subtypes)
   const partnerDesignatorMatch = text.match(/Partner—([^(\n]+)/i);
-  if (partnerDesignatorMatch) {
-    const designator = partnerDesignatorMatch[1].trim();
-    return { type: "partner_designator", designator };
+  const partnerDesignator = partnerDesignatorMatch?.[1]?.trim();
+  if (partnerDesignator) {
+    return { type: 'partner_designator', designator: partnerDesignator };
   }
 
   // Check for "Choose a Background"
-  if (text.includes("Choose a Background")) {
-    return { type: "background" };
+  if (text.includes('Choose a Background')) {
+    return { type: 'background' };
   }
 
   // Check for "Doctor's companion"
   if (text.includes("Doctor's companion")) {
-    return { type: "doctors_companion" };
+    return { type: 'doctors_companion' };
   }
 
   // Check for generic "Partner" keyword
-  if (keywords.includes("Partner")) {
-    return { type: "partner" };
+  if (keywords.includes('Partner')) {
+    return { type: 'partner' };
   }
 
-  return { type: "none" };
+  return { type: 'none' };
 }
 
 export type Edhrec = {
