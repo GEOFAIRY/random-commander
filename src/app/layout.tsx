@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: "EDH Commander Randomizer",
-    description: "Get a random commander",
+    description: "Generate a commander for your next MTG commander deck",
 };
 
 export default function RootLayout({

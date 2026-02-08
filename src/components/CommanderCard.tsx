@@ -5,25 +5,17 @@ import styles from "../app/page.module.css";
 
 type Props = {
     card: Card | null;
+    edhrecUrl?: string;
 };
 
-export default function CommanderCard({ card }: Props) {
+export default function CommanderCard({ card, edhrecUrl }: Props) {
     if (!card) return null;
 
     return (
         <div className={styles.cardWrap}>
             {card.imageUrl ? (
                 <a
-                    href={`https://edhrec.com/commanders/${
-                        card.faceCount === 2
-                            ? card.name
-                                  .toLowerCase()
-                                  .replace(/\s*\/\/.*$/g, "")
-                                  .replace(/[^a-z0-9]+/g, "-")
-                            : card.name
-                                  .toLowerCase()
-                                  .replace(/[^a-z0-9]+/g, "-")
-                    }`}
+                    href={edhrecUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={styles.cardImageLink}

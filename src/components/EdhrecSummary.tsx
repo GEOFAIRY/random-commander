@@ -8,9 +8,10 @@ type Tag = { name?: string; slug?: string; count?: number };
 
 type Props = {
   card: Card;
+  baseEdhrecUrl: string;
 };
 
-export default function EdhrecSummary({ card }: Props) {
+export default function EdhrecSummary({ card, baseEdhrecUrl }: Props) {
   const [edhrec, setEdhrec] = useState<Edhrec | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,16 +99,7 @@ export default function EdhrecSummary({ card }: Props) {
               const tagCount = typeof t.count === "number" ? t.count : "-";
               const tagSlug =
                 t.slug || tagName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-              const tagUrl = `https://edhrec.com/commanders/${
-                        card.faceCount === 2
-                            ? card.name
-                                  .toLowerCase()
-                                  .replace(/\s*\/\/.*$/g, "")
-                                  .replace(/[^a-z0-9]+/g, "-")
-                            : card.name
-                                  .toLowerCase()
-                                  .replace(/[^a-z0-9]+/g, "-")
-                    }/${tagSlug}`;
+              const tagUrl = `${baseEdhrecUrl}/${tagSlug}`;
 
               return (
                 <li key={i}>

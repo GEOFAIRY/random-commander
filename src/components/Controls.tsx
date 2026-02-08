@@ -1,18 +1,20 @@
 "use client";
 import styles from "../app/page.module.css";
 import { useState } from "react";
-import { fetchRandomCommanderCard } from "../lib/api";
-import { Card } from "../types";
+import { fetchRandomCommanderCard, fetchRandomPartnerCard } from "../lib/api";
+import { Card, detectPartnerConstraint } from "../types";
 import ManaIcon from "./ManaIcon";
 
 type Props = {
     onCard: (card: Card) => void;
+    onPartner: (card: Card) => void;
     colorFilters: string[];
     handleColorFilterChange: (value: string[]) => void;
 };
 
 export default function Controls({
     onCard,
+    onPartner,
     colorFilters,
     handleColorFilterChange,
 }: Props) {
@@ -44,6 +46,14 @@ export default function Controls({
         try {
             const card = await fetchRandomCommanderCard(colorFilters);
             onCard(card);
+            
+            const constraint = detectPartnerConstraint(card);
+            if (constraint.type !== "none") {
+                const partnerCard = await fetchRandomPartnerCard(colorFilters, constraint, card);
+                if (partnerCard) {
+                    onPartner(partnerCard);
+                }
+            }
         } catch (err) {
             console.error("Error fetching card:", err);
         } finally {
