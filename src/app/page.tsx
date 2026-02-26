@@ -113,6 +113,11 @@ const LandingPage = () => {
         </div>
       </main>
       <footer className={styles.siteFooter}>
+        <div className="about">
+          <p>
+            <a href="/about">About</a>
+          </p>
+        </div>
         <div className="author">
           <p>
             Made by <a href="https://github.com/GEOFAIRY">GEOFAIRY</a>

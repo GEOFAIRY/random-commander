@@ -13,8 +13,44 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'EDH Commander Randomizer',
-  description: 'Generate a commander for your next MTG commander deck',
+  title: 'EDH Commander Randomizer | Random MTG Commander Generator',
+  description:
+    'Free random EDH commander generator for Magic: The Gathering. Instantly get a random commander with color filters, EDHREC stats, deck popularity, and partner support. Find your next Commander deck idea.',
+  keywords: [
+    'EDH',
+    'commander',
+    'randomizer',
+    'MTG',
+    'Magic the Gathering',
+    'random commander',
+    'commander generator',
+    'EDH deck builder',
+    'random EDH commander',
+    'commander picker',
+  ],
+  metadataBase: new URL('https://edhrandomizer.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'EDH Commander Randomizer | Random MTG Commander Generator',
+    description:
+      'Free random EDH commander generator for Magic: The Gathering. Instantly generate a random commander with color filters and EDHREC stats.',
+    url: 'https://edhrandomizer.com',
+    siteName: 'EDH Commander Randomizer',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'EDH Commander Randomizer',
+    description:
+      'Free random EDH commander generator for Magic: The Gathering. Instantly generate a random commander with color filters and EDHREC stats.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -32,7 +68,29 @@ export default function RootLayout({
           type="text/css"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: 'EDH Commander Randomizer',
+              url: 'https://edhrandomizer.com',
+              description:
+                'Free random EDH commander generator for Magic: The Gathering. Generate a random commander with color filters and EDHREC stats.',
+              applicationCategory: 'GameApplication',
+              operatingSystem: 'Any',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+            }),
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
