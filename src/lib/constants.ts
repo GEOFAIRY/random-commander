@@ -22,6 +22,7 @@ export function slugify(name: string, doubleFaced = false): string {
   return cleaned
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\ua789\u02d0\u02d1:]/g, '')
     .replace(/[\u2019\u2018']/g, "'")
     .replace(/'s\b/gi, 's')
     .replace(/'/g, '')

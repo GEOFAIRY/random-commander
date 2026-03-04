@@ -32,8 +32,8 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '', edhrec }: Prop
   return (
     <div className={styles.edhrec}>
       <h3>Deck usage (EDHREC)</h3>
-      {(edhrec.deck_count || edhrec.decks || edhrec.decks_count) && (
-        <p>Decks: {edhrec.deck_count || edhrec.decks || edhrec.decks_count}</p>
+      {(edhrec.deck_count ?? edhrec.decks ?? edhrec.decks_count) != null && (
+        <p>Decks: {edhrec.deck_count ?? edhrec.decks ?? edhrec.decks_count}</p>
       )}
 
       <div className={styles.edhrecSummary}>

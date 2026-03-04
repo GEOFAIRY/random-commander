@@ -13,31 +13,34 @@ let queue: BufferedEntry[] = [];
 let filterKey = '';
 let refillInFlight: Promise<void> | null = null;
 let generation = 0;
+let abortController = new AbortController();
 
 function colorsToKey(colors: string[]): string {
   return [...colors].sort().join(',');
 }
 
 export function clearBuffer(): void {
+  abortController.abort();
+  abortController = new AbortController();
   queue = [];
   filterKey = '';
   refillInFlight = null;
   generation++;
 }
 
-async function fetchEdhrec(card: Card): Promise<Edhrec | null> {
+async function fetchEdhrec(card: Card, signal: AbortSignal): Promise<Edhrec | null> {
   try {
-    return await fetchEdhrecByName(card.name, card.faceCount ?? 1);
+    return await fetchEdhrecByName(card.name, card.faceCount ?? 1, signal);
   } catch {
     return null;
   }
 }
 
-async function refill(colors: string[]): Promise<void> {
-  const gen = ++generation;
+async function refill(colors: string[], signal: AbortSignal): Promise<void> {
+  const gen = generation;
   filterKey = colorsToKey(colors);
 
-  const cards = await fetchRandomCommanderCards(colors, BATCH_SIZE);
+  const cards = await fetchRandomCommanderCards(colors, BATCH_SIZE, signal);
 
   // Discard results if generation changed (filters changed mid-fetch)
   if (generation !== gen) return;
@@ -56,7 +59,7 @@ async function refill(colors: string[]): Promise<void> {
 
   // Fire off EDHREC fetches in background — mutate entries in-place as they resolve
   for (const entry of entries) {
-    fetchEdhrec(entry.card).then((edhrec) => {
+    fetchEdhrec(entry.card, signal).then((edhrec) => {
       if (generation !== gen) return;
       const queueIndex = queue.indexOf(entry);
       if (queueIndex !== -1) {
@@ -68,7 +71,8 @@ async function refill(colors: string[]): Promise<void> {
 
 function triggerBackgroundRefill(colors: string[]): void {
   if (refillInFlight) return;
-  refillInFlight = refill(colors).finally(() => {
+  const signal = abortController.signal;
+  refillInFlight = refill(colors, signal).finally(() => {
     refillInFlight = null;
   });
 }
@@ -81,6 +85,8 @@ export async function popEntry(colors: string[]): Promise<BufferedEntry | null> 
     queue = [];
   }
 
+  const signal = abortController.signal;
+
   // Only block if the queue is completely empty
   if (queue.length === 0) {
     if (refillInFlight) {
@@ -89,7 +95,7 @@ export async function popEntry(colors: string[]): Promise<BufferedEntry | null> 
     }
     // If still empty after awaiting, start a fresh refill
     if (queue.length === 0) {
-      await refill(colors);
+      await refill(colors, signal);
     }
   }
 
@@ -102,7 +108,7 @@ export async function popEntry(colors: string[]): Promise<BufferedEntry | null> 
 
   // If EDHREC data hasn't resolved yet (first card after a fresh refill), fetch inline
   if (entry && !entry.edhrec) {
-    entry.edhrec = await fetchEdhrec(entry.card);
+    entry.edhrec = await fetchEdhrec(entry.card, signal);
   }
 
   return entry;

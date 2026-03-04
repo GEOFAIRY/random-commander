@@ -35,7 +35,7 @@ type ScryfallCard = {
   [k: string]: unknown;
 };
 
-export function mapScryfallToCard(data: ScryfallCard): Card {
+function mapScryfallToCard(data: ScryfallCard): Card {
   return {
     name: data.name,
     imageUrl:
@@ -99,9 +99,12 @@ function isValidPartnerPair(
   }
 }
 
-export async function fetchRandomCommanderCard(colors: string[] = []): Promise<Card> {
+export async function fetchRandomCommanderCard(
+  colors: string[] = [],
+  signal?: AbortSignal
+): Promise<Card> {
   const query = buildCommanderQuery(colors);
-  const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`);
+  const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`, signal ? { signal } : undefined);
   if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
   const data = (await res.json()) as ScryfallCard;
   return mapScryfallToCard(data);
@@ -111,12 +114,20 @@ const BATCH_DELAY_MS = 75;
 
 export async function fetchRandomCommanderCards(
   colors: string[] = [],
-  count: number = 5
+  count: number = 5,
+  signal?: AbortSignal
 ): Promise<Card[]> {
   // Stagger requests to stay within Scryfall's rate limits (~10 req/s)
   const promises = Array.from({ length: count }, (_, i) =>
     new Promise<Card>((resolve, reject) => {
-      setTimeout(() => fetchRandomCommanderCard(colors).then(resolve, reject), i * BATCH_DELAY_MS);
+      const timer = setTimeout(
+        () => fetchRandomCommanderCard(colors, signal).then(resolve, reject),
+        i * BATCH_DELAY_MS
+      );
+      signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      }, { once: true });
     })
   );
   const results = await Promise.allSettled(promises);
@@ -140,35 +151,27 @@ export async function fetchRandomPartnerCard(
     return null;
   }
 
+  // Build query once (same across retries)
+  let query = 'is%3Acommander+legal%3Acommander';
+  if (constraint.type === 'partner') {
+    query += '+is%3Apartner+o:%22Partner%22';
+  } else if (constraint.type === 'partner_with') {
+    query += `+o:${encodeURIComponent(`"Partner with ${constraint.partnerName}"`)}`;
+  } else if (constraint.type === 'partner_designator') {
+    query += `+o:${encodeURIComponent(`"Partner—${constraint.designator}"`)}`;
+  } else if (constraint.type === 'background') {
+    query = 't%3ABackground+is%3Aenchantment+is%3Alegendary+legal%3Acommander';
+  } else if (constraint.type === 'doctors_companion') {
+    query = 'o:%22Doctor%27s+companion%22+legal%3Acommander';
+  }
+  if (colors.length > 0) {
+    query += `+id=${colors.join('')}`;
+  }
+
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      let query = 'is%3Acommander+legal%3Acommander';
-
-      // Build query based on partner constraint
-      if (constraint.type === 'partner') {
-        // Generic partner - fetch any partner card
-        query += '+is%3Apartner+o:%22Partner%22';
-      } else if (constraint.type === 'partner_with') {
-        // Partner with specific card
-        query += `+o:${encodeURIComponent(`"Partner with ${constraint.partnerName}"`)}`;
-      } else if (constraint.type === 'partner_designator') {
-        // Partner designator - search for cards with the same designator in text
-        query += `+o:${encodeURIComponent(`"Partner—${constraint.designator}"`)}`;
-      } else if (constraint.type === 'background') {
-        // Choose a Background - fetch a Background enchantment
-        query = 't%3ABackground+is%3Aenchantment+is%3Alegendary+legal%3Acommander';
-      } else if (constraint.type === 'doctors_companion') {
-        // Doctor's companion - fetch a Time Lord card with Doctor in type
-        query = 'o:%22Doctor%27s+companion%22+legal%3Acommander';
-      }
-
-      // Add color filter if provided
-      if (colors.length > 0) {
-        query += `+id=${colors.join('')}`;
-      }
-
       const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`);
       if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
       const data = (await res.json()) as ScryfallCard;
@@ -194,10 +197,10 @@ export async function fetchRandomPartnerCard(
   return null;
 }
 
-export async function fetchEdhrecByName(name: string, faceCount = 1): Promise<Edhrec> {
+export async function fetchEdhrecByName(name: string, faceCount = 1, signal?: AbortSignal): Promise<Edhrec> {
   const slug = slugify(name, faceCount > 1);
   const url = `https://json.edhrec.com/pages/commanders/${slug}.json`;
-  const res = await fetch(url);
+  const res = await fetch(url, signal ? { signal } : undefined);
   if (!res.ok) throw new ApiError(`EDHREC response ${res.status}`, 'edhrec', res.status);
   try {
     const data = (await res.json()) as Edhrec;

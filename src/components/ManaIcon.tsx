@@ -8,5 +8,5 @@ type Props = {
 };
 
 export default function ManaIcon({ id, className }: Props) {
-  return <i className={`ms ms-${id.toLowerCase()} ${className ?? ''}`}></i>;
+  return <i className={`ms ms-${id.toLowerCase()}${className ? ` ${className}` : ''}`}></i>;
 }

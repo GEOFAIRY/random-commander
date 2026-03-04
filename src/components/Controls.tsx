@@ -17,7 +17,6 @@ export default function Controls({
   onRandom,
   randomizing,
 }: Props) {
-
   const toggleColor = useCallback(
     (id: ManaId) => {
       let newFilters: string[] = [];
@@ -33,12 +32,8 @@ export default function Controls({
     [colorFilters, handleColorFilterChange]
   );
 
-  const handleRandom = useCallback(async () => {
-    try {
-      await onRandom();
-    } catch (err) {
-      console.error('Error fetching card:', err);
-    }
+  const handleRandom = useCallback(() => {
+    onRandom();
   }, [onRandom]);
 
   return (

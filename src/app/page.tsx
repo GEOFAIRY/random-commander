@@ -26,38 +26,47 @@ const LandingPage = () => {
   const { randomizing, randomize } = useRandomCommander();
   const [apiError, setApiError] = useState<string | null>(null);
 
+  const applyResult = useCallback(
+    (result: { card: Card; partner: Card | null; edhrec: Edhrec | null }) => {
+      setCard(result.card);
+      setPartner(result.partner);
+      setPrefetchedEdhrec(result.edhrec);
+    },
+    []
+  );
+
   const fetchNewCard = useCallback(async () => {
     setApiError(null);
     try {
-      const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
-      setCard(cardData);
-      setPartner(partnerCard);
-      setPrefetchedEdhrec(edhrec);
+      applyResult(await randomize(colorFilters));
     } catch (err) {
       console.error('Error fetching card:', err);
       setApiError(err instanceof ApiError ? err.message : String(err));
     }
-  }, [randomize, colorFilters]);
+  }, [randomize, colorFilters, applyResult]);
 
   // Initial load + re-fetch on filter change
   useEffect(() => {
     let stale = false;
-    (async () => {
-      setApiError(null);
-      try {
-        const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
+    randomize(colorFilters).then(
+      (result) => {
         if (stale) return;
-        setCard(cardData);
-        setPartner(partnerCard);
-        setPrefetchedEdhrec(edhrec);
-      } catch (err) {
+        setApiError(null);
+        applyResult(result);
+      },
+      (err) => {
         if (stale) return;
         console.error('Error fetching card:', err);
         setApiError(err instanceof ApiError ? err.message : String(err));
       }
-    })();
+    );
     return () => { stale = true; };
-  }, [randomize, colorFilters]);
+  }, [randomize, colorFilters, applyResult]);
+
+  const handleColorFilterChange = useCallback((value: string[]) => {
+    clearBuffer();
+    setColorFilters(value);
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -65,10 +74,7 @@ const LandingPage = () => {
         <div className={styles.mainContent}>
           <h1>Random Commander Card</h1>
           <Controls
-            handleColorFilterChange={(value) => {
-              clearBuffer();
-              setColorFilters(value);
-            }}
+            handleColorFilterChange={handleColorFilterChange}
             colorFilters={colorFilters}
             onRandom={fetchNewCard}
             randomizing={randomizing}
@@ -91,7 +97,7 @@ const LandingPage = () => {
             <div className={styles.leftColumn}>
               {card ? (
                 <>
-                  <CommanderCard card={card} edhrecUrl={buildEdhrecUrl(card, partner)} />
+                  <CommanderCard card={card} edhrecUrl={buildEdhrecUrl(card, partner)} priority />
                   {partner && (
                     <CommanderCard card={partner} edhrecUrl={buildEdhrecUrl(card, partner)} />
                   )}
