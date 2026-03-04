@@ -34,6 +34,28 @@ type ScryfallCard = {
   [k: string]: unknown;
 };
 
+export function mapScryfallToCard(data: ScryfallCard): Card {
+  return {
+    name: data.name,
+    imageUrl:
+      data.image_uris?.normal ||
+      data.card_faces?.[0]?.image_uris?.normal ||
+      '',
+    type: data.type_line ?? '',
+    text: data.oracle_text ?? '',
+    faceCount: data.card_faces ? data.card_faces.length : 1,
+    keywords: data.keywords ?? [],
+  };
+}
+
+function buildCommanderQuery(colors: string[]): string {
+  let query = 'is%3Acommander+legal%3Acommander';
+  if (colors.length > 0) {
+    query += `+id=${colors.toString().replace(',', '')}`;
+  }
+  return query;
+}
+
 function isValidPartnerPair(
   mainCard: Card,
   partnerCard: Card,
@@ -77,27 +99,27 @@ function isValidPartnerPair(
 }
 
 export async function fetchRandomCommanderCard(colors: string[] = []): Promise<Card> {
-  const res = await fetch(
-    colors.length === 0
-      ? 'https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander'
-      : `https://api.scryfall.com/cards/random?q=is%3Acommander+legal%3Acommander+id=${colors.toString().replace(',', '')}`
-  );
+  const query = buildCommanderQuery(colors);
+  const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`);
   if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
   const data = (await res.json()) as ScryfallCard;
+  return mapScryfallToCard(data);
+}
 
-  const card: Card = {
-    name: data.name,
-    imageUrl:
-      data.image_uris?.normal ||
-      data.card_faces?.[0]?.image_uris?.normal ||
-      '',
-    type: data.type_line ?? '',
-    text: data.oracle_text ?? '',
-    faceCount: data.card_faces ? data.card_faces.length : 1,
-    keywords: data.keywords ?? [],
-  };
-
-  return card;
+export async function fetchRandomCommanderCards(
+  colors: string[] = [],
+  count: number = 10
+): Promise<Card[]> {
+  const results = await Promise.allSettled(
+    Array.from({ length: count }, () => fetchRandomCommanderCard(colors))
+  );
+  const cards = results
+    .filter((r): r is PromiseFulfilledResult<Card> => r.status === 'fulfilled')
+    .map((r) => r.value);
+  if (cards.length === 0) {
+    throw new ApiError('All batch fetches failed', 'scryfall');
+  }
+  return cards;
 }
 
 export async function fetchRandomPartnerCard(
@@ -144,17 +166,7 @@ export async function fetchRandomPartnerCard(
       if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
       const data = (await res.json()) as ScryfallCard;
 
-      const card: Card = {
-        name: data.name,
-        imageUrl:
-          data.image_uris?.normal ||
-          data.card_faces?.[0]?.image_uris?.normal ||
-          '',
-        type: data.type_line ?? '',
-        text: data.oracle_text ?? '',
-        faceCount: data.card_faces ? data.card_faces.length : 1,
-        keywords: data.keywords ?? [],
-      };
+      const card = mapScryfallToCard(data);
 
       // Validate the pair if we have the main card
       if (mainCard && !isValidPartnerPair(mainCard, card, constraint)) {

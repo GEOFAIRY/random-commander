@@ -9,9 +9,10 @@ type Tag = { name?: string; slug?: string; count?: number };
 type Props = {
   card?: Card | null;
   baseEdhrecUrl?: string;
+  prefetchedEdhrec?: Edhrec | null;
 };
 
-export default function EdhrecSummary({ card, baseEdhrecUrl = '' }: Props) {
+export default function EdhrecSummary({ card, baseEdhrecUrl = '', prefetchedEdhrec }: Props) {
   const [edhrec, setEdhrec] = useState<Edhrec | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +20,14 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '' }: Props) {
   useEffect(() => {
     let mounted = true;
     if (!card) return;
+
+    // Use pre-fetched data if available
+    if (prefetchedEdhrec) {
+      setEdhrec(prefetchedEdhrec);
+      setError(null);
+      setLoading(false);
+      return;
+    }
 
     setEdhrec(null);
     setError(null);
@@ -44,7 +53,7 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '' }: Props) {
     return () => {
       mounted = false;
     };
-  }, [card]);
+  }, [card, prefetchedEdhrec]);
   if (loading)
     return (
       <div className={styles.edhrec} aria-live="polite">

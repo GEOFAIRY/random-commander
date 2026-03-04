@@ -2,7 +2,8 @@
 import styles from './page.module.css';
 import { useEffect, useState } from 'react';
 import { ApiError } from '../lib/api';
-import { Card } from '../types';
+import { clearBuffer } from '../lib/commanderBuffer';
+import { Card, Edhrec } from '../types';
 import { useRandomCommander } from '../lib/hooks/useRandomCommander';
 import CommanderCard from '../components/CommanderCard';
 import EdhrecSummary from '../components/EdhrecSummary';
@@ -19,6 +20,7 @@ const buildEdhrecUrl = (card: Card, partner?: Card | null): string => {
 const LandingPage = () => {
   const [card, setCard] = useState<Card | null>(null);
   const [partner, setPartner] = useState<Card | null>(null);
+  const [prefetchedEdhrec, setPrefetchedEdhrec] = useState<Edhrec | null>(null);
   const [colorFilters, setColorFilters] = useState<string[]>([]);
 
   const { randomizing, randomize } = useRandomCommander();
@@ -29,9 +31,10 @@ const LandingPage = () => {
     const fetchCard = async () => {
       setApiError(null);
       try {
-        const { card: cardData, partner: partnerCard } = await randomize(colorFilters);
+        const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
         setCard(cardData);
         setPartner(partnerCard);
+        setPrefetchedEdhrec(edhrec);
       } catch (err) {
         console.error('Error fetching card on mount:', err);
         setApiError(err instanceof ApiError ? err.message : String(err));
@@ -47,15 +50,17 @@ const LandingPage = () => {
           <h1>Random Commander Card</h1>
           <Controls
             handleColorFilterChange={(value) => {
+              clearBuffer();
               setColorFilters(value);
             }}
             colorFilters={colorFilters}
             onRandom={async () => {
               setApiError(null);
               try {
-                const { card: cardData, partner: partnerCard } = await randomize(colorFilters);
+                const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
                 setCard(cardData);
                 setPartner(partnerCard);
+                setPrefetchedEdhrec(edhrec);
               } catch (err) {
                 console.error('Error fetching card:', err);
                 setApiError(err instanceof ApiError ? err.message : String(err));
@@ -93,7 +98,7 @@ const LandingPage = () => {
 
             <div className={styles.rightColumn}>
               {card ? (
-                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} />
+                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} prefetchedEdhrec={prefetchedEdhrec} />
               ) : (
                 <div className={styles.edhrec}>
                   <div className={styles.edhrecSkeleton}>
