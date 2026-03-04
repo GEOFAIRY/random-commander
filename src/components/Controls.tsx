@@ -1,7 +1,8 @@
 'use client';
 import styles from '../app/page.module.css';
 import { useCallback } from 'react';
-import ManaIcon, { ManaId } from './ManaIcon';
+import ManaIcon from './ManaIcon';
+import type { ManaId } from './ManaIcon';
 import { COLORS } from '../lib/constants';
 
 type Props = {
@@ -31,10 +32,6 @@ export default function Controls({
     },
     [colorFilters, handleColorFilterChange]
   );
-
-  const handleRandom = useCallback(() => {
-    onRandom();
-  }, [onRandom]);
 
   return (
     <div className={styles.contentHeader}>
@@ -66,7 +63,7 @@ export default function Controls({
       </div>
 
       <button
-        onClick={handleRandom}
+        onClick={onRandom}
         className={styles.randomizeButton}
         disabled={randomizing}
         aria-busy={randomizing}
@@ -88,7 +85,7 @@ export default function Controls({
           <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
           <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
         </svg>
-        <span style={{ marginLeft: 8 }}>{randomizing ? 'Randomizing…' : 'Get Another Card'}</span>
+        <span>{randomizing ? 'Randomizing…' : 'Get Another Card'}</span>
       </button>
     </div>
   );

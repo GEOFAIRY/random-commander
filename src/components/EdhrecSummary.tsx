@@ -20,11 +20,11 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '', edhrec }: Prop
       </div>
     );
 
-  const panelTaglinks = Array.isArray(edhrec?.panels?.taglinks) ? edhrec!.panels!.taglinks : [];
+  const panelTaglinks = edhrec.panels?.taglinks ?? [];
 
   const avg =
-    typeof edhrec.num_of_decks_average === 'number'
-      ? edhrec.num_of_decks_average
+    typeof edhrec.num_decks_average === 'number'
+      ? edhrec.num_decks_average
       : typeof edhrec.num_decks_avg === 'number'
         ? edhrec.num_decks_avg
         : undefined;
@@ -61,7 +61,7 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '', edhrec }: Prop
                     href={tagUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={styles.tagLink}
+
                   >
                     <span className={styles.tagName}>{tagName}</span>
                     <span className={styles.tagCount}>{tagCount}</span>

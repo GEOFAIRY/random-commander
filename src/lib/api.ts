@@ -144,7 +144,8 @@ export async function fetchRandomPartnerCard(
   colors: string[] = [],
   constraint?: PartnerConstraint,
   mainCard?: Card,
-  maxRetries: number = 5
+  maxRetries: number = 5,
+  signal?: AbortSignal
 ): Promise<Card | null> {
   // If no constraint, we can't find a valid partner
   if (!constraint || constraint.type === 'none') {
@@ -172,7 +173,7 @@ export async function fetchRandomPartnerCard(
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`);
+      const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`, signal ? { signal } : undefined);
       if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
       const data = (await res.json()) as ScryfallCard;
 
