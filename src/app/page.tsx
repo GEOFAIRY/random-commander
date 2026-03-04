@@ -24,7 +24,7 @@ const LandingPage = () => {
   const [prefetchedEdhrec, setPrefetchedEdhrec] = useState<Edhrec | null>(null);
   const [colorFilters, setColorFilters] = useState<string[]>([]);
 
-  const { randomizing, randomize } = useRandomCommander();
+  const { randomize } = useRandomCommander();
   const [apiError, setApiError] = useState<string | null>(null);
 
   const applyResult = useCallback(
@@ -38,6 +38,9 @@ const LandingPage = () => {
 
   const fetchNewCard = useCallback(async () => {
     setApiError(null);
+    setCard(null);
+    setPartner(null);
+    setPrefetchedEdhrec(null);
     try {
       applyResult(await randomize(colorFilters));
     } catch (err) {
@@ -78,7 +81,7 @@ const LandingPage = () => {
             handleColorFilterChange={handleColorFilterChange}
             colorFilters={colorFilters}
             onRandom={fetchNewCard}
-            randomizing={randomizing}
+            randomizing={!card}
           />
 
           {apiError ? (

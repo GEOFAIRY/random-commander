@@ -49,8 +49,10 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '', edhrec }: Prop
           <ul className={styles.edhrecTags}>
             {panelTaglinks.slice(0, 5).map((t: Tag, i: number) => {
               const tagName = (t.name || t.slug || `tag-${i}`)
-                .replace(/plus-/g, '+')
-                .replace(/minus-/g, '-');
+                .replace(/\+(\d+)-\+(\d+)/g, '+$1/+$2')
+                .replace(/-(\d+)--(\d+)/g, '-$1/-$2')
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, (c) => c.toUpperCase());
               const tagCount = typeof t.count === 'number' ? t.count : '-';
               const tagSlug = t.slug || tagName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
               const tagUrl = `${baseEdhrecUrl}/${tagSlug}`;
