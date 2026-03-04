@@ -1,7 +1,5 @@
 'use client';
 import styles from '../app/page.module.css';
-import { useEffect, useState } from 'react';
-import { fetchEdhrecByName } from '../lib/api';
 import { Edhrec, Card } from '../types';
 
 type Tag = { name?: string; slug?: string; count?: number };
@@ -9,70 +7,12 @@ type Tag = { name?: string; slug?: string; count?: number };
 type Props = {
   card?: Card | null;
   baseEdhrecUrl?: string;
-  prefetchedEdhrec?: Edhrec | null;
+  edhrec?: Edhrec | null;
 };
 
-export default function EdhrecSummary({ card, baseEdhrecUrl = '', prefetchedEdhrec }: Props) {
-  const [edhrec, setEdhrec] = useState<Edhrec | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export default function EdhrecSummary({ card, baseEdhrecUrl = '', edhrec }: Props) {
+  if (!card) return null;
 
-  useEffect(() => {
-    let mounted = true;
-    if (!card) return;
-
-    // Use pre-fetched data if available
-    if (prefetchedEdhrec) {
-      setEdhrec(prefetchedEdhrec);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
-    setEdhrec(null);
-    setError(null);
-    setLoading(true);
-
-    (async () => {
-      try {
-        const edh = await fetchEdhrecByName(card.name, card.faceCount ?? 1);
-        if (!mounted) return;
-        setEdhrec(edh);
-      } catch (err: unknown) {
-        console.error('EDHREC fetch error:', err);
-        if (!mounted) return;
-        const msg = err instanceof Error ? err.message : String(err);
-        setError(msg || 'Failed to fetch EDHREC data');
-        setEdhrec(null);
-      } finally {
-        if (!mounted) return;
-        setLoading(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [card, prefetchedEdhrec]);
-  if (loading)
-    return (
-      <div className={styles.edhrec} aria-live="polite">
-        <div className={styles.edhrecSkeleton}>
-          <div className={styles.skelLine} />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <div className={styles.skelSmall} />
-            <div className={styles.skelSmall} />
-          </div>
-        </div>
-      </div>
-    );
-
-  if (error)
-    return (
-      <div className={styles.edhrec} aria-live="polite">
-        <p style={{ color: 'red', margin: 0 }}>Error loading deck data: {error}</p>
-      </div>
-    );
   if (!edhrec)
     return (
       <div className={styles.edhrec} aria-live="polite">
@@ -82,12 +22,11 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '', prefetchedEdhr
 
   const panelTaglinks = Array.isArray(edhrec?.panels?.taglinks) ? edhrec!.panels!.taglinks : [];
 
-  const maybeNumDecksAvg = (edhrec as unknown as Record<string, unknown>)['num_decks_avg'];
   const avg =
     typeof edhrec.num_of_decks_average === 'number'
       ? edhrec.num_of_decks_average
-      : typeof maybeNumDecksAvg === 'number'
-        ? (maybeNumDecksAvg as number)
+      : typeof edhrec.num_decks_avg === 'number'
+        ? edhrec.num_decks_avg
         : undefined;
 
   return (

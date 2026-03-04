@@ -1,6 +1,6 @@
 'use client';
 import styles from './page.module.css';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '../lib/api';
 import { clearBuffer } from '../lib/commanderBuffer';
 import { Card, Edhrec } from '../types';
@@ -26,27 +26,43 @@ const LandingPage = () => {
   const { randomizing, randomize } = useRandomCommander();
   const [apiError, setApiError] = useState<string | null>(null);
 
-  // Initial load handled here (delegates to hook)
+  const fetchNewCard = useCallback(async () => {
+    setApiError(null);
+    try {
+      const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
+      setCard(cardData);
+      setPartner(partnerCard);
+      setPrefetchedEdhrec(edhrec);
+    } catch (err) {
+      console.error('Error fetching card:', err);
+      setApiError(err instanceof ApiError ? err.message : String(err));
+    }
+  }, [randomize, colorFilters]);
+
+  // Initial load + re-fetch on filter change
   useEffect(() => {
-    const fetchCard = async () => {
+    let stale = false;
+    (async () => {
       setApiError(null);
       try {
         const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
+        if (stale) return;
         setCard(cardData);
         setPartner(partnerCard);
         setPrefetchedEdhrec(edhrec);
       } catch (err) {
-        console.error('Error fetching card on mount:', err);
+        if (stale) return;
+        console.error('Error fetching card:', err);
         setApiError(err instanceof ApiError ? err.message : String(err));
       }
-    };
-    fetchCard();
+    })();
+    return () => { stale = true; };
   }, [randomize, colorFilters]);
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <div style={{ textAlign: 'center', padding: '20px', width: '100%', boxSizing: 'border-box' }}>
+        <div className={styles.mainContent}>
           <h1>Random Commander Card</h1>
           <Controls
             handleColorFilterChange={(value) => {
@@ -54,18 +70,7 @@ const LandingPage = () => {
               setColorFilters(value);
             }}
             colorFilters={colorFilters}
-            onRandom={async () => {
-              setApiError(null);
-              try {
-                const { card: cardData, partner: partnerCard, edhrec } = await randomize(colorFilters);
-                setCard(cardData);
-                setPartner(partnerCard);
-                setPrefetchedEdhrec(edhrec);
-              } catch (err) {
-                console.error('Error fetching card:', err);
-                setApiError(err instanceof ApiError ? err.message : String(err));
-              }
-            }}
+            onRandom={fetchNewCard}
             randomizing={randomizing}
           />
 
@@ -98,7 +103,7 @@ const LandingPage = () => {
 
             <div className={styles.rightColumn}>
               {card ? (
-                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} prefetchedEdhrec={prefetchedEdhrec} />
+                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} edhrec={prefetchedEdhrec} />
               ) : (
                 <div className={styles.edhrec}>
                   <div className={styles.edhrecSkeleton}>
@@ -115,32 +120,32 @@ const LandingPage = () => {
         </div>
       </main>
       <footer className={styles.siteFooter}>
-        <div className="about">
+        <div>
           <p>
             <a href="/about">About</a>
           </p>
         </div>
-        <div className="author">
+        <div>
           <p>
             Made by <a href="https://github.com/GEOFAIRY">GEOFAIRY</a>
           </p>
         </div>
-        <div className="repo">
+        <div>
           Open Source at <a href="https://github.com/GEOFAIRY/random-commander">GitHub</a>
         </div>
-        <div className="credit">
-          <div className="scryfall">
+        <div>
+          <div>
             <p>
               Card information and Image provided by <a href="https://scryfall.com/">Scryfall</a>
             </p>
           </div>
-          <div className="edhrec">
+          <div>
             <p>
               Deck usage information provided by <a href="https://edhrec.com">EDHRecs</a>
             </p>
           </div>
         </div>
-        <div className="contact">
+        <div>
           <p>
             Contact at <a href="mailto:krs19@xtra.co.nz">krs19@xtra.co.nz</a>
           </p>

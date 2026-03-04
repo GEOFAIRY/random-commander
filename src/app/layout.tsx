@@ -63,7 +63,7 @@ export default function RootLayout({
       <head>
         {/* eslint-disable-next-line @next/next/no-css-tags */}
         <link
-          href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.css"
+          href="//cdn.jsdelivr.net/npm/mana-font@1.18.0/css/mana.css"
           rel="stylesheet"
           type="text/css"
         />

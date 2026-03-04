@@ -1,4 +1,5 @@
 import { Card, Edhrec, PartnerConstraint, detectPartnerConstraint } from '../types';
+import { slugify } from './constants';
 
 export class ApiError extends Error {
   service: 'scryfall' | 'edhrec' | 'unknown';
@@ -51,7 +52,7 @@ export function mapScryfallToCard(data: ScryfallCard): Card {
 function buildCommanderQuery(colors: string[]): string {
   let query = 'is%3Acommander+legal%3Acommander';
   if (colors.length > 0) {
-    query += `+id=${colors.toString().replace(',', '')}`;
+    query += `+id=${colors.join('')}`;
   }
   return query;
 }
@@ -106,13 +107,19 @@ export async function fetchRandomCommanderCard(colors: string[] = []): Promise<C
   return mapScryfallToCard(data);
 }
 
+const BATCH_DELAY_MS = 75;
+
 export async function fetchRandomCommanderCards(
   colors: string[] = [],
-  count: number = 10
+  count: number = 5
 ): Promise<Card[]> {
-  const results = await Promise.allSettled(
-    Array.from({ length: count }, () => fetchRandomCommanderCard(colors))
+  // Stagger requests to stay within Scryfall's rate limits (~10 req/s)
+  const promises = Array.from({ length: count }, (_, i) =>
+    new Promise<Card>((resolve, reject) => {
+      setTimeout(() => fetchRandomCommanderCard(colors).then(resolve, reject), i * BATCH_DELAY_MS);
+    })
   );
+  const results = await Promise.allSettled(promises);
   const cards = results
     .filter((r): r is PromiseFulfilledResult<Card> => r.status === 'fulfilled')
     .map((r) => r.value);
@@ -159,7 +166,7 @@ export async function fetchRandomPartnerCard(
 
       // Add color filter if provided
       if (colors.length > 0) {
-        query += `+id=${colors.toString().replace(',', '')}`;
+        query += `+id=${colors.join('')}`;
       }
 
       const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`);
@@ -188,20 +195,7 @@ export async function fetchRandomPartnerCard(
 }
 
 export async function fetchEdhrecByName(name: string, faceCount = 1): Promise<Edhrec> {
-  // Normalize and strip diacritics so names like "Érika" become "erika" and
-  // ligatures or compatibility characters are decomposed (NFKD).
-  const cleanedName = faceCount > 1 ? name.replace(/\s*\/\/.*$/g, '') : name;
-  const slug = cleanedName
-    .normalize('NFKD')
-    // remove combining diacritical marks
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[\u2019\u2018']/g, "'")
-    .replace(/'s\b/gi, 's')
-    .replace(/'/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-
+  const slug = slugify(name, faceCount > 1);
   const url = `https://json.edhrec.com/pages/commanders/${slug}.json`;
   const res = await fetch(url);
   if (!res.ok) throw new ApiError(`EDHREC response ${res.status}`, 'edhrec', res.status);

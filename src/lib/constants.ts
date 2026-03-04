@@ -12,12 +12,24 @@ export const COLORS: ReadonlyArray<ColorItem> = [
   { id: 'C', title: 'Colorless', bg: '#f2f2f2', fg: '#444' },
 ];
 
+/**
+ * Normalize a card name to a URL-safe slug.
+ * Strips diacritics, possessives, and special characters.
+ * If doubleFaced is true, drops the back face (" // ...").
+ */
+export function slugify(name: string, doubleFaced = false): string {
+  const cleaned = doubleFaced ? name.replace(/\s*\/\/.*$/g, '') : name;
+  return cleaned
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2019\u2018']/g, "'")
+    .replace(/'s\b/gi, 's')
+    .replace(/'/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
 export function buildSlug(c: Card): string {
-  // Keep same behavior as previous implementation: drop trailing "//" face suffix for two-faced cards
-  return c.faceCount === 2
-    ? c.name
-        .toLowerCase()
-        .replace(/\s*\/\/.*$/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-    : c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return slugify(c.name, (c.faceCount ?? 1) > 1);
 }

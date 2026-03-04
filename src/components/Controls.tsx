@@ -1,6 +1,6 @@
 'use client';
 import styles from '../app/page.module.css';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import ManaIcon, { ManaId } from './ManaIcon';
 import { COLORS } from '../lib/constants';
 
@@ -17,8 +17,6 @@ export default function Controls({
   onRandom,
   randomizing,
 }: Props) {
-  // Use centralized COLORS (memoized to stable reference for children)
-  const colors = useMemo(() => COLORS, []);
 
   const toggleColor = useCallback(
     (id: ManaId) => {
@@ -46,7 +44,7 @@ export default function Controls({
   return (
     <div className={styles.contentHeader}>
       <div className={styles.colorFilters}>
-        {colors.map((c) => {
+        {COLORS.map((c) => {
           const pressed = colorFilters.includes(c.id);
           return (
             <button
@@ -76,7 +74,6 @@ export default function Controls({
         onClick={handleRandom}
         className={styles.randomizeButton}
         disabled={randomizing}
-        aria-pressed={randomizing}
         aria-busy={randomizing}
       >
         <svg

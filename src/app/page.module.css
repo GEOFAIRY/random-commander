@@ -36,6 +36,13 @@
   box-sizing: border-box;
 }
 
+.mainContent {
+  text-align: center;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .intro {
   display: flex;
   flex-direction: column;

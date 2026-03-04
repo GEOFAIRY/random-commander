@@ -13,8 +13,7 @@ export type PartnerConstraint =
   | { type: 'partner_with'; partnerName: string }
   | { type: 'partner_designator'; designator: string }
   | { type: 'background' }
-  | { type: 'doctors_companion' }
-  | { type: 'restricted_other' };
+  | { type: 'doctors_companion' };
 
 export function detectPartnerConstraint(card: Card): PartnerConstraint {
   const text = card.text;
@@ -57,6 +56,7 @@ export type Edhrec = {
   decks?: number;
   decks_count?: number;
   num_decks_average?: number;
+  num_decks_avg?: number;
   cards?: Array<{ name?: string; card?: string }>;
   panels?: {
     taglinks?: Array<{ name?: string; slug?: string; count?: number }>;
