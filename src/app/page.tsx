@@ -8,6 +8,7 @@ import { useRandomCommander } from '../lib/hooks/useRandomCommander';
 import CommanderCard from '../components/CommanderCard';
 import EdhrecSummary from '../components/EdhrecSummary';
 import Controls from '../components/Controls';
+import AdBanner from '../components/AdBanner';
 
 import { buildSlug } from '../lib/constants';
 
@@ -125,6 +126,9 @@ const LandingPage = () => {
           </div>
         </div>
       </main>
+      <div className={styles.adContainer}>
+        <AdBanner />
+      </div>
       <footer className={styles.siteFooter}>
         <div>
           <p>

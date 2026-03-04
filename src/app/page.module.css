@@ -15,7 +15,7 @@
 
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  flex: 1;
   align-items: center;
   justify-content: flex-start;
   font-family: var(--font-geist-sans);
@@ -232,8 +232,18 @@
   box-sizing: border-box;
 }
 
+/* Ad banner between content and footer */
+.adContainer {
+  width: 100%;
+  max-width: 1000px;
+  margin: 24px auto;
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+
 /* Footer at bottom and small text */
 .siteFooter {
+  margin-top: auto;
   width: 100%;
   max-width: 900px;
   padding: 8px 16px;
