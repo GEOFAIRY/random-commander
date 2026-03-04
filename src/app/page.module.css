@@ -288,13 +288,14 @@ a.secondary {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  min-height: 360px; /* Reserve room for image and text */
+  width: 240px;
+  min-height: 340px;
 }
 
 .cardSkeleton {
-  width: 220px;
-  height: 320px;
-  border-radius: 8px;
+  width: 240px;
+  height: 340px;
+  border-radius: 15px;
   overflow: hidden;
   background: linear-gradient(90deg, #f3f3f3 25%, #ececec 37%, #f3f3f3 63%);
   background-size: 400% 100%;
@@ -304,12 +305,11 @@ a.secondary {
 
 .titleSkeleton {
   width: 55%;
-  height: 20px;
+  height: 24px;
   border-radius: 6px;
   background: linear-gradient(90deg, #f3f3f3 25%, #ececec 37%, #f3f3f3 63%);
   background-size: 400% 100%;
   animation: shimmer 1.2s linear infinite;
-  margin: 4px 0 12px 0;
 }
 
 .edhrec {
@@ -321,7 +321,10 @@ a.secondary {
   border-radius: 12px;
   border: 1px solid #ececec;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 300px;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 /* Footer at bottom and small text */
@@ -433,18 +436,21 @@ a.secondary {
 }
 
 .leftColumn {
-  flex: 0 0 260px;
+  flex: 0 0 auto;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: flex-start;
+  gap: 12px;
 }
 
 .rightColumn {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: 340px;
+  min-height: 340px;
 }
 
 .headerRow {
@@ -453,6 +459,7 @@ a.secondary {
   align-items: center;
   gap: 12px;
   flex: 0 0 100%;
+  min-height: 28px;
 }
 
 .cardTitle {
@@ -472,7 +479,7 @@ a.secondary {
 .cardImageLink {
   display: block;
   width: 240px;
-  height: auto;
+  aspect-ratio: 240 / 340;
 }
 
 .cardImageLink img {

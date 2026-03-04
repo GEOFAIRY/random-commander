@@ -43,7 +43,7 @@ const LandingPage = () => {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <div style={{ textAlign: 'center', padding: '20px' }}>
+        <div style={{ textAlign: 'center', padding: '20px', width: '100%', boxSizing: 'border-box' }}>
           <h1>Random Commander Card</h1>
           <Controls
             handleColorFilterChange={(value) => {
@@ -70,34 +70,31 @@ const LandingPage = () => {
             </div>
           ) : null}
 
-          {card ? (
-            <div className={styles.content}>
-              <div className={styles.headerRow}>
+          <div className={styles.content}>
+            <div className={styles.headerRow}>
+              {card ? (
                 <h2 className={styles.cardTitle}>{card.name}</h2>
-                <div />
-              </div>
-              <div className={styles.leftColumn}>
-                <CommanderCard card={card} edhrecUrl={buildEdhrecUrl(card, partner)} />
-                {partner && (
-                  <CommanderCard card={partner} edhrecUrl={buildEdhrecUrl(card, partner)} />
-                )}
-              </div>
-
-              <div className={styles.rightColumn}>
-                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} />
-              </div>
+              ) : (
+                <div className={styles.titleSkeleton} aria-hidden="true" />
+              )}
             </div>
-          ) : (
-            <div className={styles.content}>
-              <div className={styles.leftColumn}>
+            <div className={styles.leftColumn}>
+              {card ? (
+                <>
+                  <CommanderCard card={card} edhrecUrl={buildEdhrecUrl(card, partner)} />
+                  {partner && (
+                    <CommanderCard card={partner} edhrecUrl={buildEdhrecUrl(card, partner)} />
+                  )}
+                </>
+              ) : (
                 <div className={styles.cardSkeleton} aria-hidden="true" />
-              </div>
+              )}
+            </div>
 
-              <div className={styles.rightColumn}>
-                <div className={styles.headerRow}>
-                  <div className={styles.titleSkeleton} aria-hidden="true" />
-                </div>
-
+            <div className={styles.rightColumn}>
+              {card ? (
+                <EdhrecSummary card={card} baseEdhrecUrl={buildEdhrecUrl(card, partner)} />
+              ) : (
                 <div className={styles.edhrec}>
                   <div className={styles.edhrecSkeleton}>
                     <div className={styles.skelLine} />
@@ -107,9 +104,9 @@ const LandingPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </main>
       <footer className={styles.siteFooter}>

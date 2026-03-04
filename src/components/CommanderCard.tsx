@@ -27,6 +27,7 @@ export default function CommanderCard({ card = null, edhrecUrl }: Props) {
             height={340}
             loading="eager"
             fetchPriority="high"
+            style={{ width: 240, height: 'auto' }}
           />
         </a>
       ) : null}

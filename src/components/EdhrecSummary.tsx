@@ -58,8 +58,18 @@ export default function EdhrecSummary({ card, baseEdhrecUrl = '' }: Props) {
       </div>
     );
 
-  if (error) return <p style={{ color: 'red' }}>Error loading deck data: {error}</p>;
-  if (!edhrec) return null;
+  if (error)
+    return (
+      <div className={styles.edhrec} aria-live="polite">
+        <p style={{ color: 'red', margin: 0 }}>Error loading deck data: {error}</p>
+      </div>
+    );
+  if (!edhrec)
+    return (
+      <div className={styles.edhrec} aria-live="polite">
+        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>No deck data available.</p>
+      </div>
+    );
 
   const panelTaglinks = Array.isArray(edhrec?.panels?.taglinks) ? edhrec!.panels!.taglinks : [];
 
