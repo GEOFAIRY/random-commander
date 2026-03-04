@@ -88,8 +88,8 @@ export async function fetchRandomCommanderCard(colors: string[] = []): Promise<C
   const card: Card = {
     name: data.name,
     imageUrl:
-      (!data.card_faces && data.image_uris?.normal) ||
-      (data.layout === 'transform' && data.card_faces?.[0]?.image_uris?.normal) ||
+      data.image_uris?.normal ||
+      data.card_faces?.[0]?.image_uris?.normal ||
       '',
     type: data.type_line ?? '',
     text: data.oracle_text ?? '',
@@ -147,8 +147,8 @@ export async function fetchRandomPartnerCard(
       const card: Card = {
         name: data.name,
         imageUrl:
-          (!data.card_faces && data.image_uris?.normal) ||
-          (data.layout === 'transform' && data.card_faces?.[0]?.image_uris?.normal) ||
+          data.image_uris?.normal ||
+          data.card_faces?.[0]?.image_uris?.normal ||
           '',
         type: data.type_line ?? '',
         text: data.oracle_text ?? '',
