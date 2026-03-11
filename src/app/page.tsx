@@ -11,7 +11,6 @@ import EdhrecSummary from '../components/EdhrecSummary';
 import Controls from '../components/Controls';
 import HistoryPanel from '../components/HistoryPanel';
 import AdBanner from '../components/AdBanner';
-import Link from 'next/link';
 import { buildSlug } from '../lib/constants';
 import { useFavorites } from '../lib/hooks/useFavorites';
 
@@ -110,17 +109,12 @@ const LandingPage = () => {
     <div className="flex flex-col flex-1 items-center justify-start bg-surface text-text-primary">
       <main className="flex flex-col flex-1 w-full max-w-250 mx-auto items-center justify-start bg-surface-card py-20 px-10 max-sm:py-12 max-sm:px-6">
         <div className="text-center p-5 w-full">
-          <h1>Random Commander Card</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2 max-sm:text-3xl">Random Commander Card</h1>
           <Controls
             handleColorFilterChange={handleColorFilterChange}
             colorFilters={colorFilters}
             onRandom={fetchNewCard}
             randomizing={!card}
-          />
-          <HistoryPanel
-            history={history}
-            onSelect={handleHistorySelect}
-            onClear={clearHistoryEntries}
           />
 
           {apiError ? (
@@ -208,48 +202,16 @@ const LandingPage = () => {
               )}
             </div>
           </div>
+          <HistoryPanel
+            history={history}
+            onSelect={handleHistorySelect}
+            onClear={clearHistoryEntries}
+          />
         </div>
       </main>
       <div className="w-full max-w-250 mx-auto my-6 px-4">
         <AdBanner />
       </div>
-      <footer className="mt-auto w-full max-w-225 px-4 py-2 text-center text-text-secondary text-xs flex gap-9 justify-center items-center flex-wrap">
-        <div>
-          <p className="m-0 leading-none">
-            <Link href="/favorites">Favorites</Link>
-          </p>
-        </div>
-        <div>
-          <p className="m-0 leading-none">
-            <a href="/about">About</a>
-          </p>
-        </div>
-        <div>
-          <p className="m-0 leading-none">
-            Made by <a href="https://github.com/GEOFAIRY">GEOFAIRY</a>
-          </p>
-        </div>
-        <div>
-          Open Source at <a href="https://github.com/GEOFAIRY/random-commander">GitHub</a>
-        </div>
-        <div>
-          <div>
-            <p className="m-0 leading-none">
-              Card information and Image provided by <a href="https://scryfall.com/">Scryfall</a>
-            </p>
-          </div>
-          <div>
-            <p className="m-0 leading-none">
-              Deck usage information provided by <a href="https://edhrec.com">EDHRecs</a>
-            </p>
-          </div>
-        </div>
-        <div>
-          <p className="m-0 leading-none">
-            Contact at <a href="mailto:krs19@xtra.co.nz">krs19@xtra.co.nz</a>
-          </p>
-        </div>
-      </footer>
     </div>
   );
 };

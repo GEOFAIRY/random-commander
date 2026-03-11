@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Link from 'next/link';
 import './globals.css';
 
 const geistSans = Geist({
@@ -94,7 +95,47 @@ export default function RootLayout({
             }),
           }}
         />
+        <nav className="w-full max-w-250 mx-auto flex items-center justify-between px-10 py-3 max-sm:px-6">
+          <Link href="/" className="text-sm font-semibold text-text-primary no-underline hover:text-text-secondary">
+            EDH Randomizer
+          </Link>
+          <div className="flex gap-6">
+            <Link href="/favorites" className="text-sm text-text-secondary no-underline hover:text-text-primary">
+              Favorites
+            </Link>
+            <Link href="/about" className="text-sm text-text-secondary no-underline hover:text-text-primary">
+              About
+            </Link>
+          </div>
+        </nav>
         {children}
+        <footer className="mt-auto w-full max-w-225 mx-auto px-4 py-2 text-center text-text-secondary text-xs flex gap-9 justify-center items-center flex-wrap">
+          <div>
+            <p className="m-0 leading-none">
+              Made by <a href="https://github.com/GEOFAIRY">GEOFAIRY</a>
+            </p>
+          </div>
+          <div>
+            Open Source at <a href="https://github.com/GEOFAIRY/random-commander">GitHub</a>
+          </div>
+          <div>
+            <div>
+              <p className="m-0 leading-none">
+                Card information and Image provided by <a href="https://scryfall.com/">Scryfall</a>
+              </p>
+            </div>
+            <div>
+              <p className="m-0 leading-none">
+                Deck usage information provided by <a href="https://edhrec.com">EDHRecs</a>
+              </p>
+            </div>
+          </div>
+          <div>
+            <p className="m-0 leading-none">
+              Contact at <a href="mailto:krs19@xtra.co.nz">krs19@xtra.co.nz</a>
+            </p>
+          </div>
+        </footer>
       </body>
     </html>
   );
