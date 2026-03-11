@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -38,6 +38,7 @@ function FavoritesContent() {
 
   const [sharedCards, setSharedCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(false);
+  const [shareLabel, setShareLabel] = useState('Share');
 
   useEffect(() => {
     if (!idsParam) return;
@@ -45,13 +46,18 @@ function FavoritesContent() {
     let cancelled = false;
     const controller = new AbortController();
 
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    const MAX_SHARED = 50;
+
     async function loadSharedCards() {
       setLoading(true);
       try {
         const ids: unknown = JSON.parse(atob(idsParam!));
         if (!Array.isArray(ids)) return;
+        const validIds = ids.filter((id): id is string => typeof id === 'string' && UUID_RE.test(id)).slice(0, MAX_SHARED);
+        if (validIds.length === 0) return;
         const cards = await Promise.all(
-          ids.map((id: string) => fetchCardById(id, controller.signal)),
+          validIds.map((id) => fetchCardById(id, controller.signal)),
         );
         if (!cancelled) setSharedCards(cards);
       } catch {
@@ -68,12 +74,21 @@ function FavoritesContent() {
     };
   }, [idsParam]);
 
-  function handleShare() {
+  const handleShare = useCallback(() => {
     const ids = favorites.map((f) => f.scryfallId);
     const encoded = btoa(JSON.stringify(ids));
     const url = `${window.location.origin}/favorites?ids=${encoded}`;
-    navigator.clipboard.writeText(url);
-  }
+    navigator.clipboard.writeText(url).then(
+      () => {
+        setShareLabel('Copied!');
+        setTimeout(() => setShareLabel('Share'), 2000);
+      },
+      () => {
+        setShareLabel('Failed');
+        setTimeout(() => setShareLabel('Share'), 2000);
+      }
+    );
+  }, [favorites]);
 
   return (
     <div className="flex flex-col min-h-screen items-center bg-surface text-text-primary">
@@ -92,7 +107,7 @@ function FavoritesContent() {
           {!isSharedView && favorites.length > 0 && (
             <div className="flex gap-2 ml-auto">
               <button type="button" className={btnClasses} onClick={handleShare}>
-                Share
+                {shareLabel}
               </button>
               <button type="button" className={btnClasses} onClick={clear}>
                 Clear All
@@ -138,7 +153,7 @@ function FavoritesContent() {
                 <button
                   type="button"
                   onClick={() => remove(entry.scryfallId)}
-                  className="absolute top-1 right-1 z-10 size-6 rounded-full bg-black/60 text-white border-none cursor-pointer flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  className="absolute top-1 right-1 z-10 size-6 rounded-full bg-black/60 text-white border-none cursor-pointer flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
                   title="Remove from favorites"
                   aria-label={`Remove ${entry.name} from favorites`}
                 >

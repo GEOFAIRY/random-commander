@@ -1,9 +1,8 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import {
   getFavorites,
   addFavorite,
   removeFavorite,
-  isFavorite as checkIsFavorite,
   clearFavorites,
   type FavoriteEntry,
 } from '../favorites';
@@ -51,9 +50,8 @@ export function useFavorites() {
     emitChange();
   }, []);
 
-  const isFavorite = useCallback((scryfallId: string) => {
-    return checkIsFavorite(scryfallId);
-  }, []);
+  const favoriteIds = useMemo(() => new Set(favorites.map((e) => e.scryfallId)), [favorites]);
+  const isFavorite = useCallback((scryfallId: string) => favoriteIds.has(scryfallId), [favoriteIds]);
 
   const clear = useCallback(() => {
     clearFavorites();

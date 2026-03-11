@@ -11,6 +11,7 @@ import EdhrecSummary from '../components/EdhrecSummary';
 import Controls from '../components/Controls';
 import HistoryPanel from '../components/HistoryPanel';
 import AdBanner from '../components/AdBanner';
+import Link from 'next/link';
 import { buildSlug } from '../lib/constants';
 import { useFavorites } from '../lib/hooks/useFavorites';
 
@@ -215,7 +216,7 @@ const LandingPage = () => {
       <footer className="mt-auto w-full max-w-225 px-4 py-2 text-center text-text-secondary text-xs flex gap-9 justify-center items-center flex-wrap">
         <div>
           <p className="m-0 leading-none">
-            <a href="/favorites">Favorites</a>
+            <Link href="/favorites">Favorites</Link>
           </p>
         </div>
         <div>
