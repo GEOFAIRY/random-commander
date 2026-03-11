@@ -1,10 +1,12 @@
 export interface Card {
   name: string;
+  scryfallId?: string;
   imageUrl: string;
   type: string;
   text: string;
   faceCount?: number;
   keywords: string[];
+  colorIdentity?: string[];
 }
 
 export type PartnerConstraint =

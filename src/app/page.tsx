@@ -39,9 +39,9 @@ const LandingPage = () => {
       setPrefetchedEdhrec(result.edhrec);
       addHistoryEntry({
         name: result.card.name,
-        scryfallId: result.card.name,
+        scryfallId: result.card.scryfallId ?? result.card.name,
         imageUri: result.card.imageUrl,
-        colorIdentity: [],
+        colorIdentity: result.card.colorIdentity ?? [],
         ...(result.partner?.name && { partnerName: result.partner.name }),
         ...(result.partner?.imageUrl && { partnerImageUri: result.partner.imageUrl }),
         timestamp: Date.now(),

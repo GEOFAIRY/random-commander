@@ -25,7 +25,9 @@ type ScryfallCardFace = {
 };
 
 type ScryfallCard = {
+  id: string;
   name: string;
+  color_identity?: string[];
   image_uris?: ScryfallImageUris;
   layout?: string;
   card_faces?: ScryfallCardFace[];
@@ -38,6 +40,7 @@ type ScryfallCard = {
 function mapScryfallToCard(data: ScryfallCard): Card {
   return {
     name: data.name,
+    scryfallId: data.id,
     imageUrl:
       data.image_uris?.normal ||
       data.card_faces?.[0]?.image_uris?.normal ||
@@ -46,6 +49,7 @@ function mapScryfallToCard(data: ScryfallCard): Card {
     text: data.oracle_text ?? '',
     faceCount: data.card_faces ? data.card_faces.length : 1,
     keywords: data.keywords ?? [],
+    colorIdentity: data.color_identity ?? [],
   };
 }
 
@@ -105,6 +109,13 @@ export async function fetchRandomCommanderCard(
 ): Promise<Card> {
   const query = buildCommanderQuery(colors);
   const res = await fetch(`https://api.scryfall.com/cards/random?q=${query}`, signal ? { signal } : undefined);
+  if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
+  const data = (await res.json()) as ScryfallCard;
+  return mapScryfallToCard(data);
+}
+
+export async function fetchCardById(id: string, signal?: AbortSignal): Promise<Card> {
+  const res = await fetch(`https://api.scryfall.com/cards/${encodeURIComponent(id)}`, signal ? { signal } : undefined);
   if (!res.ok) throw new ApiError(`Scryfall response ${res.status}`, 'scryfall', res.status);
   const data = (await res.json()) as ScryfallCard;
   return mapScryfallToCard(data);
