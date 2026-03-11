@@ -2,7 +2,6 @@
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { Card } from '../types';
-import styles from '../app/page.module.css';
 
 type Props = {
   card?: Card | null;
@@ -26,14 +25,19 @@ export default function CommanderCard({ card = null, edhrecUrl, priority = false
   if (!card) return null;
 
   return (
-    <div className={styles.cardWrap}>
-      {!loaded && <div className={styles.cardSkeleton} aria-hidden="true" />}
+    <div className="relative flex flex-col items-center gap-2 w-60 min-h-85">
+      {!loaded && (
+        <div
+          className="w-60 h-85 rounded-[15px] overflow-hidden bg-linear-to-r from-[#f3f3f3] via-edhrec-border to-[#f3f3f3] bg-size-[400%_100%] animate-shimmer shadow-[inset_0_0_0_1px_rgba(0,0,0,0.03)] dark:from-[#0b1220] dark:via-[#0f1720] dark:to-[#0b1220]"
+          aria-hidden="true"
+        />
+      )}
       {card.imageUrl ? (
         <a
           href={edhrecUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={styles.cardImageLink}
+          className="block w-60 aspect-240/340"
           style={loaded ? undefined : { position: 'absolute', visibility: 'hidden' }}
         >
           <Image
@@ -43,6 +47,7 @@ export default function CommanderCard({ card = null, edhrecUrl, priority = false
             height={340}
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
+            className="rounded-[15px]"
             style={{ width: 240, height: 'auto' }}
             onLoad={() => setLoadedUrl(card.imageUrl)}
           />

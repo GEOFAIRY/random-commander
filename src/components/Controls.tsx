@@ -1,5 +1,4 @@
 'use client';
-import styles from '../app/page.module.css';
 import { useCallback } from 'react';
 import ManaIcon from './ManaIcon';
 import type { ManaId } from './ManaIcon';
@@ -34,8 +33,8 @@ export default function Controls({
   );
 
   return (
-    <div className={styles.contentHeader}>
-      <div className={styles.colorFilters}>
+    <div className="flex justify-center items-center w-full gap-7.5 my-5 max-md:flex-wrap">
+      <div className="flex gap-2 items-center">
         {COLORS.map((c) => {
           const pressed = colorFilters.includes(c.id);
           return (
@@ -45,7 +44,11 @@ export default function Controls({
               title={c.title}
               aria-pressed={pressed}
               onClick={() => toggleColor(c.id)}
-              className={styles.colorButton}
+              className={`size-10 inline-flex items-center justify-center rounded-lg border border-btn-border bg-gray-500 font-bold cursor-pointer p-0 transition-all duration-150 ${
+                pressed
+                  ? '-translate-y-0.5 shadow-lg border-(--cb-fg,currentColor) [background:var(--cb-bg)] text-(--cb-fg,currentColor) [&_svg]:drop-shadow-md'
+                  : 'hover:-translate-y-0.5 hover:bg-black/5'
+              } disabled:opacity-70 disabled:cursor-wait active:translate-y-px [&_svg]:transition-all [&_svg]:duration-150`}
               style={
                 {
                   '--cb-bg': c.bg,
@@ -54,7 +57,7 @@ export default function Controls({
               }
               disabled={randomizing}
             >
-              <span className={styles.manaIcon} aria-hidden="true">
+              <span aria-hidden="true">
                 <ManaIcon id={c.id} />
               </span>
             </button>
@@ -64,12 +67,12 @@ export default function Controls({
 
       <button
         onClick={onRandom}
-        className={styles.randomizeButton}
+        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-btn-border bg-transparent text-text-primary cursor-pointer transition-all duration-150 hover:shadow-sm active:translate-y-px disabled:opacity-70 disabled:cursor-wait"
         disabled={randomizing}
         aria-busy={randomizing}
       >
         <svg
-          className={randomizing ? styles.spin : styles.icon}
+          className={`size-4.5 ${randomizing ? 'animate-spin' : 'transition-transform duration-200'}`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="none"
@@ -85,7 +88,7 @@ export default function Controls({
           <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path>
           <path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path>
         </svg>
-        <span>{randomizing ? 'Randomizing…' : 'Get Another Card'}</span>
+        <span>{randomizing ? 'Randomizing\u2026' : 'Get Another Card'}</span>
       </button>
     </div>
   );

@@ -73,7 +73,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-surface text-text-primary font-(family-name:--font-geist-sans)`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
