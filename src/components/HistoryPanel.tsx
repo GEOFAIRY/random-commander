@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import { useRef } from 'react';
 import { type HistoryEntry } from '../lib/history';
 
 type Props = {
@@ -9,6 +10,8 @@ type Props = {
 };
 
 export default function HistoryPanel({ history, onSelect, onClear }: Props) {
+  const stripRef = useRef<HTMLDivElement>(null);
+
   if (history.length === 0) return null;
 
   return (
@@ -23,7 +26,16 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
           Clear
         </button>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+      <div
+        ref={stripRef}
+        className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]"
+        onWheel={(e) => {
+          if (stripRef.current && e.deltaY !== 0) {
+            e.preventDefault();
+            stripRef.current.scrollLeft += e.deltaY;
+          }
+        }}
+      >
         {history.map((entry) => (
           <button
             key={entry.scryfallId}

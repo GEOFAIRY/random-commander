@@ -2,6 +2,8 @@ import { useCallback, useSyncExternalStore } from 'react';
 import { getHistory, addToHistory, clearHistory, type HistoryEntry } from '../history';
 
 let listeners: Array<() => void> = [];
+let cachedSnapshot: HistoryEntry[] = getHistory();
+const SERVER_SNAPSHOT: HistoryEntry[] = [];
 
 function subscribe(listener: () => void) {
   listeners = [...listeners, listener];
@@ -11,15 +13,16 @@ function subscribe(listener: () => void) {
 }
 
 function emitChange() {
+  cachedSnapshot = getHistory();
   for (const listener of listeners) listener();
 }
 
 function getSnapshot(): HistoryEntry[] {
-  return getHistory();
+  return cachedSnapshot;
 }
 
 function getServerSnapshot(): HistoryEntry[] {
-  return [];
+  return SERVER_SNAPSHOT;
 }
 
 export function useHistory() {
