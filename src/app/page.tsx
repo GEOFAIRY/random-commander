@@ -12,6 +12,7 @@ import Controls from '../components/Controls';
 import HistoryPanel from '../components/HistoryPanel';
 import AdBanner from '../components/AdBanner';
 import { buildSlug } from '../lib/constants';
+import { useFavorites } from '../lib/hooks/useFavorites';
 
 const buildEdhrecUrl = (card: Card, partner?: Card | null): string => {
   const slug = buildSlug(card);
@@ -29,6 +30,7 @@ const LandingPage = () => {
   const [colorFilters, setColorFilters] = useState<string[]>([]);
 
   const { randomize } = useRandomCommander();
+  const { add: addFavorite, remove: removeFavorite, isFavorite } = useFavorites();
   const { history, add: addHistoryEntry, clear: clearHistoryEntries } = useHistory();
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -129,7 +131,46 @@ const LandingPage = () => {
           <div className="flex gap-6 items-start w-full flex-wrap max-md:flex-col max-md:items-center">
             <div className="flex justify-center items-center gap-3 basis-full min-h-7">
               {card ? (
-                <h2 className="m-0 text-xl font-semibold">{card.name}</h2>
+                <>
+                  <h2 className="m-0 text-xl font-semibold">{card.name}</h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = card.scryfallId ?? card.name;
+                      if (isFavorite(id)) {
+                        removeFavorite(id);
+                      } else {
+                        addFavorite({
+                          name: card.name,
+                          scryfallId: id,
+                          imageUri: card.imageUrl,
+                          colorIdentity: card.colorIdentity ?? [],
+                          ...(partner?.name && { partnerName: partner.name }),
+                          ...(partner?.imageUrl && { partnerImageUri: partner.imageUrl }),
+                          timestamp: Date.now(),
+                        });
+                      }
+                    }}
+                    className="p-1 bg-transparent border-none cursor-pointer transition-transform duration-150 hover:scale-110"
+                    title={isFavorite(card.scryfallId ?? card.name) ? 'Remove from favorites' : 'Add to favorites'}
+                    aria-label={isFavorite(card.scryfallId ?? card.name) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill={isFavorite(card.scryfallId ?? card.name) ? '#f59e0b' : 'none'}
+                      stroke={isFavorite(card.scryfallId ?? card.name) ? '#f59e0b' : 'currentColor'}
+                      strokeWidth={2}
+                      className="size-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
+                      />
+                    </svg>
+                  </button>
+                </>
               ) : (
                 <div className={`w-[55%] h-6 rounded-md ${skeletonBase}`} aria-hidden="true" />
               )}
@@ -172,6 +213,11 @@ const LandingPage = () => {
         <AdBanner />
       </div>
       <footer className="mt-auto w-full max-w-225 px-4 py-2 text-center text-text-secondary text-xs flex gap-9 justify-center items-center flex-wrap">
+        <div>
+          <p className="m-0 leading-none">
+            <a href="/favorites">Favorites</a>
+          </p>
+        </div>
         <div>
           <p className="m-0 leading-none">
             <a href="/about">About</a>
