@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { type HistoryEntry } from '../lib/history';
 
 type Props = {
@@ -31,10 +32,12 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
             type="button"
             title={entry.name}
           >
-            <img
+            <Image
               src={entry.imageUri}
               alt={entry.name}
-              className="w-15 h-21 rounded-md object-cover block"
+              width={60}
+              height={84}
+              className="rounded-md object-cover block"
               loading="lazy"
             />
             <div className="text-[10px] text-text-secondary max-w-15 overflow-hidden text-ellipsis whitespace-nowrap text-center mt-0.5">

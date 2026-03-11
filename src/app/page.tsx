@@ -1,12 +1,15 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
-import { ApiError } from '../lib/api';
+import { ApiError, fetchEdhrecByName } from '../lib/api';
 import { clearBuffer } from '../lib/commanderBuffer';
 import { Card, Edhrec } from '../types';
 import { useRandomCommander } from '../lib/hooks/useRandomCommander';
+import { useHistory } from '../lib/hooks/useHistory';
+import type { HistoryEntry } from '../lib/history';
 import CommanderCard from '../components/CommanderCard';
 import EdhrecSummary from '../components/EdhrecSummary';
 import Controls from '../components/Controls';
+import HistoryPanel from '../components/HistoryPanel';
 import AdBanner from '../components/AdBanner';
 import { buildSlug } from '../lib/constants';
 
@@ -26,6 +29,7 @@ const LandingPage = () => {
   const [colorFilters, setColorFilters] = useState<string[]>([]);
 
   const { randomize } = useRandomCommander();
+  const { history, add: addHistoryEntry, clear: clearHistoryEntries } = useHistory();
   const [apiError, setApiError] = useState<string | null>(null);
 
   const applyResult = useCallback(
@@ -33,8 +37,17 @@ const LandingPage = () => {
       setCard(result.card);
       setPartner(result.partner);
       setPrefetchedEdhrec(result.edhrec);
+      addHistoryEntry({
+        name: result.card.name,
+        scryfallId: result.card.name,
+        imageUri: result.card.imageUrl,
+        colorIdentity: [],
+        ...(result.partner?.name && { partnerName: result.partner.name }),
+        ...(result.partner?.imageUrl && { partnerImageUri: result.partner.imageUrl }),
+        timestamp: Date.now(),
+      });
     },
-    []
+    [addHistoryEntry]
   );
 
   const fetchNewCard = useCallback(async () => {
@@ -67,6 +80,24 @@ const LandingPage = () => {
     return () => { stale = true; };
   }, [randomize, colorFilters, applyResult]);
 
+  const handleHistorySelect = useCallback(async (entry: HistoryEntry) => {
+    setApiError(null);
+    const restoredCard: Card = { name: entry.name, imageUrl: entry.imageUri, type: '', text: '', keywords: [] };
+    const restoredPartner = entry.partnerName && entry.partnerImageUri
+      ? { name: entry.partnerName, imageUrl: entry.partnerImageUri, type: '', text: '', keywords: [] } as Card
+      : null;
+    setCard(restoredCard);
+    setPartner(restoredPartner);
+    setPrefetchedEdhrec(null);
+
+    try {
+      const edhrecData = await fetchEdhrecByName(restoredCard.name);
+      setPrefetchedEdhrec(edhrecData);
+    } catch {
+      // EDHREC data is optional
+    }
+  }, []);
+
   const handleColorFilterChange = useCallback((value: string[]) => {
     clearBuffer();
     setColorFilters(value);
@@ -82,6 +113,11 @@ const LandingPage = () => {
             colorFilters={colorFilters}
             onRandom={fetchNewCard}
             randomizing={!card}
+          />
+          <HistoryPanel
+            history={history}
+            onSelect={handleHistorySelect}
+            onClear={clearHistoryEntries}
           />
 
           {apiError ? (
