@@ -1,5 +1,5 @@
 import { fetchRandomCommanderCards, fetchEdhrecByName } from './api';
-import type { Card, Edhrec } from '../types';
+import type { Card, Edhrec, Filters } from '../types';
 
 export type BufferedEntry = {
   card: Card;
@@ -15,8 +15,12 @@ let refillInFlight: Promise<void> | null = null;
 let generation = 0;
 let abortController = new AbortController();
 
-function colorsToKey(colors: string[]): string {
-  return [...colors].sort().join(',');
+function filtersToKey(colors: string[], filters?: Filters): string {
+  const colorPart = [...colors].sort().join(',');
+  const typePart = (filters?.types ?? []).sort().join(',');
+  const cmcPart = (filters?.cmcRanges ?? []).sort().join(',');
+  const partnerPart = filters?.partnerOnly ? '1' : '0';
+  return `${colorPart}|${typePart}|${cmcPart}|${partnerPart}`;
 }
 
 export function clearBuffer(): void {
@@ -36,11 +40,11 @@ async function fetchEdhrec(card: Card, signal: AbortSignal): Promise<Edhrec | nu
   }
 }
 
-async function refill(colors: string[], signal: AbortSignal): Promise<void> {
+async function refill(colors: string[], filters: Filters | undefined, signal: AbortSignal): Promise<void> {
   const gen = generation;
-  filterKey = colorsToKey(colors);
+  filterKey = filtersToKey(colors, filters);
 
-  const cards = await fetchRandomCommanderCards(colors, BATCH_SIZE, signal);
+  const cards = await fetchRandomCommanderCards(colors, filters, BATCH_SIZE, signal);
 
   // Discard results if generation changed (filters changed mid-fetch)
   if (generation !== gen) return;
@@ -69,16 +73,16 @@ async function refill(colors: string[], signal: AbortSignal): Promise<void> {
   }
 }
 
-function triggerBackgroundRefill(colors: string[]): void {
+function triggerBackgroundRefill(colors: string[], filters?: Filters): void {
   if (refillInFlight) return;
   const signal = abortController.signal;
-  refillInFlight = refill(colors, signal).finally(() => {
+  refillInFlight = refill(colors, filters, signal).finally(() => {
     refillInFlight = null;
   });
 }
 
-export async function popEntry(colors: string[]): Promise<BufferedEntry | null> {
-  const key = colorsToKey(colors);
+export async function popEntry(colors: string[], filters?: Filters): Promise<BufferedEntry | null> {
+  const key = filtersToKey(colors, filters);
 
   // If filters changed, the buffer is stale
   if (key !== filterKey) {
@@ -95,7 +99,7 @@ export async function popEntry(colors: string[]): Promise<BufferedEntry | null> 
     }
     // If still empty after awaiting, start a fresh refill
     if (queue.length === 0) {
-      await refill(colors, signal);
+      await refill(colors, filters, signal);
     }
   }
 
@@ -103,7 +107,7 @@ export async function popEntry(colors: string[]): Promise<BufferedEntry | null> 
 
   // Trigger background refill when running low (never blocks the pop)
   if (queue.length < REFILL_THRESHOLD) {
-    triggerBackgroundRefill(colors);
+    triggerBackgroundRefill(colors, filters);
   }
 
   // If EDHREC data hasn't resolved yet (first card after a fresh refill), fetch inline

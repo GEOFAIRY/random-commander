@@ -9,26 +9,39 @@ export interface Card {
   colorIdentity?: string[];
 }
 
+export type Filters = {
+  types: string[];
+  cmcRanges: string[];
+  partnerOnly: boolean;
+};
+
+export const DEFAULT_FILTERS: Filters = {
+  types: [],
+  cmcRanges: [],
+  partnerOnly: false,
+};
+
 export type PartnerConstraint =
   | { type: 'none' }
   | { type: 'partner' }
   | { type: 'partner_with'; partnerName: string }
   | { type: 'partner_designator'; designator: string }
   | { type: 'background' }
-  | { type: 'doctors_companion' };
+  | { type: 'doctors_companion' }
+  | { type: 'doctor' };
 
 export function detectPartnerConstraint(card: Card): PartnerConstraint {
   const text = card.text;
   const keywords = card.keywords;
 
-  // Check for "Partner with [specific card name]"
-  const partnerWithMatch = text.match(/Partner with (.+?)(?:\.|,|$)/i);
+  // Check for "Partner with [specific card name]" — stop at "(" (reminder text) or newline
+  const partnerWithMatch = text.match(/Partner with (.+?)(?:\s*\(|\n|$)/i);
   const partnerWithName = partnerWithMatch?.[1]?.trim();
   if (partnerWithName) {
     return { type: 'partner_with', partnerName: partnerWithName };
   }
 
-  // Check for "Partner—[Designator]" (various partner subtypes)
+  // Check for "Partner—[Designator]" (various partner subtypes like "Friends forever")
   const partnerDesignatorMatch = text.match(/Partner—([^(\n]+)/i);
   const partnerDesignator = partnerDesignatorMatch?.[1]?.trim();
   if (partnerDesignator) {
@@ -40,14 +53,20 @@ export function detectPartnerConstraint(card: Card): PartnerConstraint {
     return { type: 'background' };
   }
 
-  // Check for "Doctor's companion"
-  if (text.includes("Doctor's companion")) {
+  // Check for "Doctor's companion" keyword
+  if (keywords.includes("Doctor's companion") || text.includes("Doctor's companion")) {
     return { type: 'doctors_companion' };
   }
 
-  // Check for generic "Partner" keyword
+  // Check for generic "Partner" keyword (must come last — designator variants also have "Partner" in keywords)
   if (keywords.includes('Partner')) {
     return { type: 'partner' };
+  }
+
+  // Check for Time Lord Doctor — these pair with Doctor's companion cards
+  // Doctors don't have a partner keyword; detection is by type line only
+  if (card.type.includes('Time Lord') && card.type.includes('Doctor')) {
+    return { type: 'doctor' };
   }
 
   return { type: 'none' };

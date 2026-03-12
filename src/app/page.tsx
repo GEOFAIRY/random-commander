@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiError, fetchEdhrecByName } from '../lib/api';
 import { clearBuffer } from '../lib/commanderBuffer';
-import { Card, Edhrec } from '../types';
+import { Card, DEFAULT_FILTERS, Edhrec, Filters } from '../types';
 import { useRandomCommander } from '../lib/hooks/useRandomCommander';
 import { useHistory } from '../lib/hooks/useHistory';
 import type { HistoryEntry } from '../lib/history';
@@ -28,6 +28,7 @@ const LandingPage = () => {
   const [partner, setPartner] = useState<Card | null>(null);
   const [prefetchedEdhrec, setPrefetchedEdhrec] = useState<Edhrec | null>(null);
   const [colorFilters, setColorFilters] = useState<string[]>([]);
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const { randomize } = useRandomCommander();
   const { add: addFavorite, remove: removeFavorite, isFavorite } = useFavorites();
@@ -58,16 +59,16 @@ const LandingPage = () => {
     setPartner(null);
     setPrefetchedEdhrec(null);
     try {
-      applyResult(await randomize(colorFilters));
+      applyResult(await randomize(colorFilters, filters));
     } catch (err) {
       console.error('Error fetching card:', err);
       setApiError(err instanceof ApiError ? err.message : String(err));
     }
-  }, [randomize, colorFilters, applyResult]);
+  }, [randomize, colorFilters, filters, applyResult]);
 
   useEffect(() => {
     let stale = false;
-    randomize(colorFilters).then(
+    randomize(colorFilters, filters).then(
       (result) => {
         if (stale) return;
         setApiError(null);
@@ -80,7 +81,7 @@ const LandingPage = () => {
       }
     );
     return () => { stale = true; };
-  }, [randomize, colorFilters, applyResult]);
+  }, [randomize, colorFilters, filters, applyResult]);
 
   const handleHistorySelect = useCallback(async (entry: HistoryEntry) => {
     setApiError(null);
@@ -105,6 +106,11 @@ const LandingPage = () => {
     setColorFilters(value);
   }, []);
 
+  const handleFiltersChange = useCallback((value: Filters) => {
+    clearBuffer();
+    setFilters(value);
+  }, []);
+
   return (
     <div className="flex flex-col flex-1 items-center justify-start bg-surface text-text-primary">
       <main className="flex flex-col flex-1 w-full max-w-250 mx-auto items-center justify-start bg-surface-card py-20 px-10 max-sm:py-12 max-sm:px-6">
@@ -113,6 +119,8 @@ const LandingPage = () => {
           <Controls
             handleColorFilterChange={handleColorFilterChange}
             colorFilters={colorFilters}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
             onRandom={fetchNewCard}
             randomizing={!card}
           />
@@ -209,9 +217,7 @@ const LandingPage = () => {
           />
         </div>
       </main>
-      <div className="w-full max-w-250 mx-auto my-6 px-4">
-        <AdBanner />
-      </div>
+      <AdBanner />
     </div>
   );
 };
