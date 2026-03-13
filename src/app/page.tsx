@@ -93,7 +93,7 @@ const LandingPage = () => {
           <div className={styles.content}>
             <div className={styles.headerRow}>
               {card ? (
-                <h2 className={styles.cardTitle}>{card.name}</h2>
+                <h2 className={styles.cardTitle}>{card.name}{partner ? ` // ${partner.name}` : ''}</h2>
               ) : (
                 <div className={styles.titleSkeleton} aria-hidden="true" />
               )}
