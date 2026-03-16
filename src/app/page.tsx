@@ -10,7 +10,6 @@ import CommanderCard from '../components/CommanderCard';
 import EdhrecSummary from '../components/EdhrecSummary';
 import Controls from '../components/Controls';
 import HistoryPanel from '../components/HistoryPanel';
-import AdBanner from '../components/AdBanner';
 import { buildSlug } from '../lib/constants';
 import { useFavorites } from '../lib/hooks/useFavorites';
 
@@ -217,7 +216,6 @@ const LandingPage = () => {
           />
         </div>
       </main>
-      <AdBanner />
     </div>
   );
 };
