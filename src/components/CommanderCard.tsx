@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { Card } from '../types';
 
@@ -40,7 +39,8 @@ export default function CommanderCard({ card = null, edhrecUrl, priority = false
           className="block w-60 aspect-240/340"
           style={loaded ? undefined : { position: 'absolute', visibility: 'hidden' }}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={card.imageUrl}
             alt={card.name}
             width={240}

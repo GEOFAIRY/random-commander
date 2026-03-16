@@ -135,7 +135,7 @@ const LandingPage = () => {
             <div className="flex justify-center items-center gap-3 basis-full min-h-7">
               {card ? (
                 <>
-                  <h2 className="m-0 text-xl font-semibold">{card.name}</h2>
+                  <h2 className="m-0 text-xl font-semibold">{card.name}{partner ? ` // ${partner.name}` : ''}</h2>
                   <button
                     type="button"
                     onClick={() => {
@@ -178,7 +178,7 @@ const LandingPage = () => {
                 <div className={`w-[55%] h-6 rounded-md ${skeletonBase}`} aria-hidden="true" />
               )}
             </div>
-            <div className="shrink-0 flex flex-row justify-start items-start gap-3">
+            <div className="shrink-0 flex flex-row justify-start items-start gap-3 max-sm:flex-col max-sm:items-center">
               {card ? (
                 <>
                   <CommanderCard card={card} edhrecUrl={buildEdhrecUrl(card, partner)} priority />
