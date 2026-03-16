@@ -68,11 +68,6 @@ export default function RootLayout({
           rel="stylesheet"
           type="text/css"
         />
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1462786245330262"
-          crossOrigin="anonymous"
-        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} bg-surface text-text-primary font-(family-name:--font-geist-sans)`}>
         <script
@@ -106,6 +101,9 @@ export default function RootLayout({
             <Link href="/about" className="text-sm text-text-secondary no-underline hover:text-text-primary">
               About
             </Link>
+            <Link href="/privacy" className="text-sm text-text-secondary no-underline hover:text-text-primary">
+              Privacy
+            </Link>
           </div>
         </nav>
         {children}
@@ -129,6 +127,10 @@ export default function RootLayout({
                 Deck usage information provided by <a href="https://edhrec.com">EDHRecs</a>
               </p>
             </div>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="hover:text-text-primary">Privacy</Link>
+            <Link href="/terms" className="hover:text-text-primary">Terms</Link>
           </div>
           <div>
             <p className="m-0 leading-none">
