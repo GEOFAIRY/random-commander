@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useFavorites } from '../../lib/hooks/useFavorites';
 import { fetchCardById } from '../../lib/api';
@@ -129,7 +128,8 @@ function FavoritesContent() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={card.imageUrl}
                     alt={card.name}
                     width={240}
@@ -165,7 +165,8 @@ function FavoritesContent() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={entry.imageUri}
                     alt={entry.name}
                     width={240}

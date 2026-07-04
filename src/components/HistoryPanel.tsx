@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 import { useRef } from 'react';
 import { type HistoryEntry } from '../lib/history';
 
@@ -44,7 +43,8 @@ export default function HistoryPanel({ history, onSelect, onClear }: Props) {
             type="button"
             title={entry.name}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={entry.imageUri}
               alt={entry.name}
               width={60}
